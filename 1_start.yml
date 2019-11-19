@@ -1,0 +1,23 @@
+
+---
+- name: Первоначальная настройка
+  hosts: all  # На все хосты
+  become: yes  # с правами root
+  
+  tasks:
+  - name: Добавление репозитория epel-release
+    yum: name=epel-release state=installed
+    
+  - name: Запуск обновления системы
+    yum: name=* state=latest
+    
+  - name: Установка net-tools.x86_64 bind-utils mc
+    yum: name=mc,net-tools.x86_64,bind-utils state=installed
+
+  - name: Отключение SeLinux
+    lineinfile: dest=/etc/sysconfig/selinux  regexp='SELINUX='  insertbefore=BOF  line='SELINUX=disabled'
+    notify: Перезапуск SeLinux
+
+  handlers:
+  - name: Перезапуск SeLinux
+    shell: setenforce 0
