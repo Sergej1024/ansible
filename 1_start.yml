@@ -6,17 +6,28 @@
   
   tasks:
   - name: Добавление репозитория epel-release
-    yum: name=epel-release state=installed
+    package: name=epel-release state=installed
     
   - name: Запуск обновления системы
-    yum: name=* state=latest
+    package: name=* state=latest
     
   - name: Установка net-tools.x86_64 bind-utils mc
-    yum: name=mc,net-tools.x86_64,bind-utils state=installed
+    package: name=mc,net-tools.x86_64,bind-utils state=installed
 
   - name: Отключение SeLinux
     lineinfile: dest=/etc/sysconfig/selinux  regexp='SELINUX='  insertbefore=BOF  line='SELINUX=disabled'
     notify: Перезапуск SeLinux
+
+  - name: Install the fail2ban
+    package: name=fail2ban  state=latest
+
+  - name: Override some basic fail2ban configurations
+    copy:
+      src: templates/jail.local.j2
+      dest: /etc/fail2ban/jail.local
+      owner: root
+      group: root
+      mode: 0644
 
   handlers:
   - name: Перезапуск SeLinux
